@@ -30,27 +30,58 @@
   const resetBtn       = document.getElementById('resetBtn');
 
   // ══════════════════════════════════════════════════════════════
-  // INIT — restore saved key
+  // INIT — restore saved key from sessionStorage
   // ══════════════════════════════════════════════════════════════
-  const savedKey = sessionStorage.getItem('ll_apikey') || '';
-  if (savedKey) {
-    apiKeyInput.value = savedKey;
-  }
+  (function init() {
+    const savedKey = sessionStorage.getItem('ll_apikey') || '';
+    if (savedKey) {
+      apiKeyInput.value = savedKey;
+      console.log('[LightLens] API key restored from session');
+    }
+  })();
 
   // ══════════════════════════════════════════════════════════════
-  // SAVE API KEY
+  // SAVE API KEY — no strict validation, just save whatever is typed
   // ══════════════════════════════════════════════════════════════
   saveApiBtn.addEventListener('click', () => {
     const key = apiKeyInput.value.trim();
 
-    // Groq keys start with gsk_
-    if (!key.startsWith('gsk_') || key.length < 20) {
-      flashButton(saveApiBtn, 'Invalid key!', '#ef4444', '#fff');
+    if (!key) {
+      flashButton(saveApiBtn, 'Key is empty!', '#ef4444', '#fff');
       return;
     }
 
-    sessionStorage.setItem('ll_apikey', key);
-    flashButton(saveApiBtn, '✓ Saved', '#4ade80', '#000');
+    try {
+      sessionStorage.setItem('ll_apikey', key);
+      const check = sessionStorage.getItem('ll_apikey');
+
+      if (check === key) {
+        console.log('[LightLens] Key saved successfully:', key.slice(0, 8) + '...');
+        flashButton(saveApiBtn, '✓ Saved!', '#4ade80', '#000');
+      } else {
+        console.error('[LightLens] Key save failed — sessionStorage check mismatch');
+        flashButton(saveApiBtn, 'Save failed!', '#ef4444', '#fff');
+      }
+    } catch (err) {
+      console.error('[LightLens] sessionStorage error:', err);
+      flashButton(saveApiBtn, 'Save failed!', '#ef4444', '#fff');
+    }
+  });
+
+  // Also save automatically when user types and presses Enter
+  apiKeyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      saveApiBtn.click();
+    }
+  });
+
+  // Also save automatically when user leaves the input field
+  apiKeyInput.addEventListener('blur', () => {
+    const key = apiKeyInput.value.trim();
+    if (key) {
+      sessionStorage.setItem('ll_apikey', key);
+      console.log('[LightLens] Key auto-saved on blur');
+    }
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -105,15 +136,12 @@
     e.preventDefault();
     e.stopPropagation();
     uploadZone.classList.remove('dragging');
-
     const file = e.dataTransfer.files[0];
     if (!file) return;
-
     if (!file.type.startsWith('image/')) {
       showError('Please drop an image file (JPG, PNG, WEBP, BMP).');
       return;
     }
-
     handleFile(file);
   });
 
@@ -122,15 +150,22 @@
   // ══════════════════════════════════════════════════════════════
   async function handleFile(file) {
 
-    // ── Get API key ──────────────────────────────────────────────
-    const apiKey = apiKeyInput.value.trim() || sessionStorage.getItem('ll_apikey') || '';
+    // ── Get API key — check input field first, then sessionStorage ──
+    const apiKey = (apiKeyInput.value.trim()) ||
+                   (sessionStorage.getItem('ll_apikey') || '');
 
-    // Groq key validation — starts with gsk_
-    if (!apiKey || !apiKey.startsWith('gsk_') || apiKey.length < 20) {
+    console.log('[LightLens] API key length:', apiKey.length);
+    console.log('[LightLens] API key preview:', apiKey ? apiKey.slice(0, 8) + '...' : 'EMPTY');
+
+    // Only block if completely empty
+    if (!apiKey) {
       showError(
-        'Please enter a valid Groq API key.\n\n' +
-        'Your key should start with "gsk_..."\n\n' +
-        'Get a FREE key at:\nhttps://console.groq.com'
+        'No API key found.\n\n' +
+        'Please:\n' +
+        '1. Paste your Groq key into the field\n' +
+        '2. Click the SAVE button\n' +
+        '3. Then upload your photo\n\n' +
+        'Get a free key at: https://console.groq.com'
       );
       apiKeyInput.focus();
       return;
@@ -141,8 +176,7 @@
     if (file.size > maxSize) {
       showError(
         `File is too large (${formatFileSize(file.size)}).\n` +
-        'Maximum allowed size is 20MB.\n\n' +
-        'Tip: For best results keep images under 4MB.'
+        'Maximum allowed size is 20MB.'
       );
       return;
     }
@@ -227,15 +261,14 @@
 
       if (err.message.includes('429') || err.message.includes('rate') || err.message.includes('quota')) {
         message =
-          'Rate limit reached on all models.\n\n' +
+          'Rate limit reached.\n\n' +
           'Please wait 60 seconds and try again.\n\n' +
           'Or switch to a different model in the dropdown.';
-      } else if (err.message.includes('401') || err.message.includes('Invalid Groq')) {
+      } else if (err.message.includes('401') || err.message.includes('Invalid') || err.message.includes('auth')) {
         message =
-          'Invalid API key.\n\n' +
-          'Please check your Groq key.\n' +
-          'It should start with "gsk_..."\n\n' +
-          'Get a free key at: https://console.groq.com';
+          'API key was rejected by Groq.\n\n' +
+          'Please check your key at:\nhttps://console.groq.com/keys\n\n' +
+          'Make sure you copied the FULL key.';
       } else if (err.message.includes('network') || err.message.includes('fetch') || err.message.includes('Network')) {
         message =
           'Network error.\n\n' +
@@ -243,7 +276,7 @@
       } else if (err.message.includes('JSON') || err.message.includes('parse')) {
         message =
           'The AI returned an unexpected response.\n\n' +
-          'Please try again — this is usually temporary.';
+          'Please try again.';
       } else {
         message += err.message;
       }
@@ -295,7 +328,6 @@
 
     colors.forEach((color) => {
 
-      // Swatch
       const swatch = document.createElement('div');
       swatch.className = 'swatch';
       swatch.style.background = color.hex;
@@ -334,7 +366,6 @@
 
       swatchContainer.appendChild(swatch);
 
-      // Detail chip
       const chip = document.createElement('div');
       chip.className = 'palette-chip';
       chip.innerHTML = `
@@ -486,7 +517,7 @@
     ctx.fillText('📷 CAM', camX, camY);
     ctx.textBaseline = 'alphabetic';
 
-    // Camera → Subject dashed line
+    // Camera to subject line
     ctx.setLineDash([4, 5]);
     ctx.strokeStyle = '#3b4160';
     ctx.lineWidth   = 1;
@@ -657,7 +688,7 @@
   }
 
   // ══════════════════════════════════════════════════════════════
-  // HELPERS — Position text → angle
+  // HELPERS — Position → angle
   // ══════════════════════════════════════════════════════════════
   function parsePositionToAngle(position) {
     if (!position) return -45;
@@ -677,7 +708,7 @@
   }
 
   // ══════════════════════════════════════════════════════════════
-  // HELPERS — Distance text → pixels
+  // HELPERS — Distance → pixels
   // ══════════════════════════════════════════════════════════════
   function parseDistanceToPx(distance) {
     if (!distance) return 130;
@@ -708,7 +739,7 @@
     PresetGenerator.download(currentPreset, `LightLens_${cleanStyle}`);
 
     const orig = downloadBtn.innerHTML;
-    downloadBtn.innerHTML      = '<i class="fa-solid fa-check"></i> Downloading...';
+    downloadBtn.innerHTML        = '<i class="fa-solid fa-check"></i> Downloading...';
     downloadBtn.style.background = '#4ade80';
     downloadBtn.style.color      = '#000';
     setTimeout(() => {
@@ -732,11 +763,11 @@
     navigator.clipboard.writeText(text)
       .then(() => {
         const orig = copyBtn.innerHTML;
-        copyBtn.innerHTML        = '<i class="fa-solid fa-check"></i> Copied!';
+        copyBtn.innerHTML         = '<i class="fa-solid fa-check"></i> Copied!';
         copyBtn.style.borderColor = '#4ade80';
         copyBtn.style.color       = '#4ade80';
         setTimeout(() => {
-          copyBtn.innerHTML        = orig;
+          copyBtn.innerHTML         = orig;
           copyBtn.style.borderColor = '';
           copyBtn.style.color       = '';
         }, 1800);
@@ -758,9 +789,9 @@
     currentColors   = null;
     currentPreset   = null;
 
-    fileInput.value  = '';
-    previewImg.src   = '';
-    previewImg.alt   = '';
+    fileInput.value = '';
+    previewImg.src  = '';
+    previewImg.alt  = '';
 
     resetAllSteps();
     setLoadingText('Analyzing your photo...');

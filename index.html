@@ -9,15 +9,8 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
@@ -39,9 +32,9 @@
         Analyze studio lighting &nbsp;·&nbsp; Extract colors &nbsp;·&nbsp; Download Lightroom preset
       </p>
       <div class="header-badges">
-        <span class="badge"><i class="fa-solid fa-bolt"></i> Powered by Gemini</span>
+        <span class="badge"><i class="fa-solid fa-bolt"></i> Powered by Groq</span>
         <span class="badge"><i class="fa-solid fa-lock"></i> Key stays in browser</span>
-        <span class="badge"><i class="fa-solid fa-gift"></i> Free API tier</span>
+        <span class="badge"><i class="fa-solid fa-gift"></i> 100% Free API</span>
       </div>
     </header>
 
@@ -56,14 +49,14 @@
             <i class="fa-solid fa-key"></i>
           </div>
           <div>
-            <p class="api-card-title">Google Gemini API Key</p>
+            <p class="api-card-title">Groq API Key — 100% Free</p>
             <p class="api-card-sub">
-              Required to run the AI analysis.
+              No credit card needed.
               <a
-                href="https://aistudio.google.com/app/apikey"
+                href="https://console.groq.com"
                 target="_blank"
                 rel="noopener"
-              >Get a free key →</a>
+              >Get your free key →</a>
             </p>
           </div>
         </div>
@@ -77,7 +70,7 @@
               <input
                 type="password"
                 id="apiKey"
-                placeholder="AIzaSy..."
+                placeholder="gsk_..."
                 autocomplete="off"
                 spellcheck="false"
               />
@@ -92,33 +85,30 @@
 
           <!-- Model selector -->
           <div class="api-input-group">
-            <label for="modelSelect">Gemini Model</label>
+            <label for="modelSelect">Model</label>
             <select id="modelSelect">
-              <option value="gemini-2.0-flash" selected>
-                gemini-2.0-flash — Recommended (fast + accurate)
+              <option value="meta-llama/llama-4-scout-17b-16e-instruct" selected>
+                Llama 4 Scout — Best vision (Free)
               </option>
-              <option value="gemini-2.0-flash-lite">
-                gemini-2.0-flash-lite — Fastest / lowest cost
+              <option value="meta-llama/llama-4-maverick-17b-128e-instruct">
+                Llama 4 Maverick — Alternative (Free)
               </option>
-              <option value="gemini-1.5-flash">
-                gemini-1.5-flash — Balanced
-              </option>
-              <option value="gemini-1.5-pro">
-                gemini-1.5-pro — Highest quality (slower)
+              <option value="llava-v1.5-7b-4096-preview">
+                LLaVA 1.5 — Stable fallback (Free)
               </option>
             </select>
           </div>
 
-        </div><!-- /api-fields -->
+        </div>
 
         <div class="api-links">
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Get API Key
+          <a href="https://console.groq.com" target="_blank" rel="noopener">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Get Free Key
           </a>
-          <a href="https://ai.google.dev/pricing" target="_blank" rel="noopener">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> View Pricing
+          <a href="https://console.groq.com/docs/rate-limits" target="_blank" rel="noopener">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Rate Limits
           </a>
-          <a href="https://ai.google.dev/gemini-api/docs/vision" target="_blank" rel="noopener">
+          <a href="https://console.groq.com/docs/vision" target="_blank" rel="noopener">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> Docs
           </a>
         </div>
@@ -199,10 +189,9 @@
     ═══════════════════════════════════════════════════════ -->
     <main class="results" id="results" hidden>
 
-      <!-- ── ROW 1: Photo Preview + Lighting Diagram ── -->
+      <!-- ROW 1: Photo + Diagram -->
       <div class="top-grid">
 
-        <!-- Photo Preview -->
         <div class="card photo-card">
           <div class="card-label">
             <i class="fa-solid fa-image"></i> Uploaded Photo
@@ -212,7 +201,6 @@
           </div>
         </div>
 
-        <!-- Lighting Diagram -->
         <div class="card diagram-card">
           <div class="card-label">
             <i class="fa-solid fa-diagram-project"></i> Lighting Diagram
@@ -221,16 +209,15 @@
           <canvas id="lightDiagram" width="400" height="400"></canvas>
         </div>
 
-      </div><!-- /top-grid -->
+      </div>
 
-      <!-- ── ROW 2: Lighting Analysis ── -->
+      <!-- ROW 2: Lighting Analysis -->
       <div class="card analysis-card">
 
         <div class="card-label">
           <i class="fa-solid fa-lightbulb"></i> Lighting Analysis
         </div>
 
-        <!-- Analysis Grid — 10 data points -->
         <div class="analysis-grid">
 
           <div class="analysis-item">
@@ -353,7 +340,7 @@
             </div>
           </div>
 
-        </div><!-- /analysis-grid -->
+        </div>
 
         <!-- AI Description -->
         <div class="desc-box">
@@ -371,9 +358,9 @@
           <p id="setupRec">—</p>
         </div>
 
-      </div><!-- /analysis-card -->
+      </div>
 
-      <!-- ── ROW 3: Color Palette ── -->
+      <!-- ROW 3: Color Palette -->
       <div class="card palette-card">
 
         <div class="card-label">
@@ -381,23 +368,13 @@
           <span class="card-label-sub">Click a swatch to copy HEX</span>
         </div>
 
-        <!-- Swatches row -->
-        <div class="palette-swatches" id="paletteSwatches">
-          <!-- Generated by JS -->
-        </div>
+        <div class="palette-swatches" id="paletteSwatches"></div>
+        <div class="palette-details" id="paletteDetails"></div>
 
-        <!-- HEX + RGB chips -->
-        <div class="palette-details" id="paletteDetails">
-          <!-- Generated by JS -->
-        </div>
-
-        <!-- Palette metadata -->
         <div class="palette-meta">
 
           <div class="palette-meta-item">
-            <div class="pm-icon">
-              <i class="fa-solid fa-face-smile"></i>
-            </div>
+            <div class="pm-icon"><i class="fa-solid fa-face-smile"></i></div>
             <div class="pm-info">
               <span class="pm-label">Dominant Mood</span>
               <span class="pm-value" id="paletteMood">—</span>
@@ -405,9 +382,7 @@
           </div>
 
           <div class="palette-meta-item">
-            <div class="pm-icon">
-              <i class="fa-solid fa-adjust"></i>
-            </div>
+            <div class="pm-icon"><i class="fa-solid fa-adjust"></i></div>
             <div class="pm-info">
               <span class="pm-label">Overall Tone</span>
               <span class="pm-value" id="paletteTone">—</span>
@@ -415,47 +390,37 @@
           </div>
 
           <div class="palette-meta-item">
-            <div class="pm-icon">
-              <i class="fa-solid fa-droplet"></i>
-            </div>
+            <div class="pm-icon"><i class="fa-solid fa-droplet"></i></div>
             <div class="pm-info">
               <span class="pm-label">Saturation Level</span>
               <span class="pm-value" id="paletteSaturation">—</span>
             </div>
           </div>
 
-        </div><!-- /palette-meta -->
+        </div>
 
-      </div><!-- /palette-card -->
+      </div>
 
-      <!-- ── ROW 4: Lightroom Preset ── -->
+      <!-- ROW 4: Lightroom Preset -->
       <div class="card preset-card">
 
         <div class="card-label">
           <i class="fa-solid fa-sliders"></i> Lightroom Preset
         </div>
 
-        <!-- Preset sliders -->
-        <div class="preset-grid" id="presetGrid">
-          <!-- Generated by JS -->
-        </div>
+        <div class="preset-grid" id="presetGrid"></div>
 
-        <!-- Download + Copy buttons -->
         <div class="preset-actions">
-
           <button class="btn-download" id="downloadXMP">
             <i class="fa-solid fa-download"></i>
             Download .XMP Preset
           </button>
-
           <button class="btn-copy" id="copyPreset">
             <i class="fa-solid fa-copy"></i>
             Copy Values
           </button>
-
         </div>
 
-        <!-- Import instructions -->
         <div class="preset-instructions">
 
           <div class="pi-header">
@@ -489,7 +454,7 @@
             <div class="pi-step">
               <div class="pi-num">4</div>
               <div class="pi-text">
-                Click the <strong>+</strong> icon next to Presets → select <em>Import Presets</em>
+                Click the <strong>+</strong> icon → select <em>Import Presets</em>
               </div>
             </div>
 
@@ -503,17 +468,17 @@
             <div class="pi-step">
               <div class="pi-num">6</div>
               <div class="pi-text">
-                Find it under <em>User Presets</em> and click to apply to any photo!
+                Find it under <em>User Presets</em> and click to apply!
               </div>
             </div>
 
-          </div><!-- /pi-steps -->
+          </div>
 
-        </div><!-- /preset-instructions -->
+        </div>
 
-      </div><!-- /preset-card -->
+      </div>
 
-      <!-- ── Analyze Another Photo ── -->
+      <!-- Reset -->
       <div class="reset-row">
         <button class="btn-reset" id="resetBtn">
           <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -521,14 +486,14 @@
         </button>
       </div>
 
-    </main><!-- /results -->
+    </main>
 
-  </div><!-- /app-wrapper -->
+  </div>
 
-  <!-- Hidden canvas used by ColorExtractor for pixel sampling -->
+  <!-- Hidden canvas for color extraction -->
   <canvas id="hiddenCanvas" hidden aria-hidden="true"></canvas>
 
-  <!-- Scripts — order matters! -->
+  <!-- Scripts — order matters -->
   <script src="colorExtractor.js"></script>
   <script src="presetGenerator.js"></script>
   <script src="lightingAnalyzer.js"></script>
